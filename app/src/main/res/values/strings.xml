@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Popular Movies</string>
+    <string name="tmdb_api_key">506f49d96a360fcfd9fd74de6d1dbe67</string>
 </resources>

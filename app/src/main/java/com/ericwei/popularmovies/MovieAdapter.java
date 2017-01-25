@@ -17,7 +17,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
-    public MovieAdapter() {
+    private final MovieCardClickListener mOnClickListener;
+
+    public interface MovieCardClickListener {
+        void onMovieCardClick();
+    }
+
+    public MovieAdapter(MovieCardClickListener listener) {
+        mOnClickListener = listener;
     }
 
 
@@ -46,9 +53,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
 
-    public class MovieViewHolder extends RecyclerView.ViewHolder
-//            implements View.OnClickListener
-    {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public ImageView mMoviePosterThumbnail;
         //public TextView movieInfo;
@@ -57,6 +62,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             super(itemView);
             mMoviePosterThumbnail = (ImageView) itemView.findViewById(R.id.iv_movie_poster_thumbnail);
             //movieInfo = (TextView) itemView.findViewById(R.id.tv_card);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            mOnClickListener.onMovieCardClick();
         }
 
 //        void bind() {
