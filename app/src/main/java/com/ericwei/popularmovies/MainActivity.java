@@ -16,7 +16,7 @@ import java.net.URL;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieCardClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String MOVIE_DATA = "movie_data";
+    public static final String MOVIE_DATA = "movie_data";
 
     private RecyclerView mRecyclerView;
     private MovieAdapter mMovieAdapter;
@@ -44,14 +44,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public void onMovieCardClick(Movie movieDetail) {
-        if (mToast != null) mToast.cancel();
-
-        mToast = Toast.makeText(this, "CLICKED CARD!!! " + String.valueOf(counter), Toast.LENGTH_LONG);
-        mToast.show();
-        counter++;
-
-        Intent intentToStartDetailActivity = new Intent(this, DetailMovieActivity.class);
+//        if (mToast != null) mToast.cancel();
+//
+//        mToast = Toast.makeText(this, "CLICKED CARD!!! " + String.valueOf(counter), Toast.LENGTH_LONG);
+//        mToast.show();
+//        counter++;
+        Intent intentToStartDetailActivity = new Intent(MainActivity.this, DetailMovieActivity.class);
         intentToStartDetailActivity.putExtra(MOVIE_DATA, movieDetail);
+        Log.d(TAG, "startign Detailed activity!!! and passing movie titled " + movieDetail.getOriginalTitle());
         startActivity(intentToStartDetailActivity);
     }
 
@@ -66,9 +66,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             Movie[] jsonMovieResponses = null;
 
             try {
-                // Toast.makeText(MainActivity.this, "GOING TO GET network data", Toast.LENGTH_LONG).show();
                 jsonMovieResponses = NetworkUtils.getResponseFromHttpUrl(movieQueryUrl);
-                //Log.d(TAG, "the json array has a LENGTH OF" + String.valueOf(jsonMovieResponses.length));
             } catch (IOException e) {
                 e.printStackTrace();
             }

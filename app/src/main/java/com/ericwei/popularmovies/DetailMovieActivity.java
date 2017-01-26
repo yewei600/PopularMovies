@@ -1,32 +1,41 @@
 package com.ericwei.popularmovies;
 
-import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-
-/**
- * Created by ericwei on 2017-01-24.
- * <p>
- * Movie details layout contains title, release date, movie poster, vote average, and plot synopsis.
- */
-
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
 
 public class DetailMovieActivity extends AppCompatActivity {
 
+    private static final String TAG = DetailMovieActivity.class.getSimpleName();
+
+    private Movie mMovie;
     private String mTitle;
     private String mReleaseDate;
     //movie poster
     private String mAverage;
     private String mPlotSynopsis;
 
+    private TextView mTV;
 
     @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
-        setContentView(R.layout.activity_movie_detail);
+    protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d(TAG, "detail activity LUANCHED!!!!");
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_detail_movie);
+
+        Intent intent = getIntent();
+        if (intent.hasExtra(MainActivity.MOVIE_DATA)) {
+            mMovie = intent.getParcelableExtra(MainActivity.MOVIE_DATA);
+        }
 
 
+        Log.d(TAG, "movie is not NULL, and the tile is " + mMovie.getOriginalTitle());
+
+        mTV = (TextView) findViewById(R.id.tv_single_movie_info);
+
+        mTV.setText(mMovie.getOriginalTitle() + " " + mMovie.getPosterPath() + " " + mMovie.getOverview());
     }
-
-
 }
