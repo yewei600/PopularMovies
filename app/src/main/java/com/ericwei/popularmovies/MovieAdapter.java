@@ -6,8 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * Created by ericwei on 2017-01-24.
@@ -21,14 +21,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private final MovieCardClickListener mOnClickListener;
 
+    private Context mContext;
+
     public interface MovieCardClickListener {
         void onMovieCardClick(Movie movieDetail);
     }
 
-    public MovieAdapter(MovieCardClickListener listener) {
+    public MovieAdapter(Context context, MovieCardClickListener listener) {
+        mContext = context;
         mOnClickListener = listener;
     }
-
 
     @Override
     public MovieAdapter.MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -44,43 +46,40 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieAdapter.MovieViewHolder holder, int position) {
 
-        holder.mMoviePosterThumbnail.setImageResource(R.mipmap.ic_launcher);
-        //holder.movieInfo.setText("YO!!!! please show on the CardView!!!!?");
-        //holder.bind();
+        holder.bind(position);
     }
 
     @Override
     public int getItemCount() {
-        return 15;
+        if (mMovieData == null) return 0;
+        return mMovieData.length;
     }
 
     public void setMovieData(Movie[] movieData) {
         mMovieData = movieData;
-        //WHAT IS THIS FOR?????====================================================================================================================================
+        //this function updates the number of views after the movie data has been loaded (from 0 to mMovieData.length)
         notifyDataSetChanged();
     }
-
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public ImageView mMoviePosterThumbnail;
-        //public TextView movieInfo;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
             mMoviePosterThumbnail = (ImageView) itemView.findViewById(R.id.iv_movie_poster_thumbnail);
-            //movieInfo = (TextView) itemView.findViewById(R.id.tv_card);
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            mOnClickListener.onMovieCardClick(mMovieData[0]);
+            mOnClickListener.onMovieCardClick(mMovieData[getAdapterPosition()]);
         }
 
-//        void bind() {
-//            mMoviePosterThumbnail.setImageResource(R.mipmap.ic_launcher);
-//        }
+        void bind(int position) {
+            String thumbnailUrl = "http://image.tmdb.org/t/p/w185" + mMovieData[position].getPosterPath();
 
+            Picasso.with(mContext).load(thumbnailUrl).into(mMoviePosterThumbnail);
+        }
     }
 }

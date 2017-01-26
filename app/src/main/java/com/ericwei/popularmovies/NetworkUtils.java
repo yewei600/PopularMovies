@@ -1,6 +1,5 @@
 package com.ericwei.popularmovies;
 
-import android.net.Uri;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -8,11 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Scanner;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -37,6 +33,7 @@ public class NetworkUtils {
     //"http://image.tmdb.org/t/p/";
     private static final String POPULAR_SEARCH = "/movie/popular";
     private static final String TOP_RATED_SEARCH = "/movie/top_rated";
+    private static OkHttpClient client = new OkHttpClient();
 
 
     public static URL buildURL() {
@@ -53,7 +50,6 @@ public class NetworkUtils {
 
     public static Movie[] getResponseFromHttpUrl(URL url) throws IOException {
 
-        OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(buildURL()).build();
 
@@ -80,11 +76,11 @@ public class NetworkUtils {
                         object.getString("vote_average"),
                         object.getString("overview"));
             }
+            response.body().close();
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return movieItems;
     }
-
-
 }

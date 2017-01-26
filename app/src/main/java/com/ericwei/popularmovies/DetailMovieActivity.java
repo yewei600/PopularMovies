@@ -1,8 +1,8 @@
 package com.ericwei.popularmovies;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -32,7 +32,7 @@ public class DetailMovieActivity extends AppCompatActivity {
         }
 
 
-        Log.d(TAG, "movie is not NULL, and the tile is " + mMovie.getOriginalTitle());
+        Log.d(TAG, "movie is not NULL, and the tile is " + mMovie.getPosterPath());
 
         mTV = (TextView) findViewById(R.id.tv_single_movie_info);
 
