@@ -17,10 +17,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
+    private Movie[] mMovieData;
+
     private final MovieCardClickListener mOnClickListener;
 
     public interface MovieCardClickListener {
-        void onMovieCardClick();
+        void onMovieCardClick(Movie movieDetail);
     }
 
     public MovieAdapter(MovieCardClickListener listener) {
@@ -52,6 +54,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return 15;
     }
 
+    public void setMovieData(Movie[] movieData) {
+        mMovieData = movieData;
+        //WHAT IS THIS FOR?????====================================================================================================================================
+        notifyDataSetChanged();
+    }
+
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -67,7 +75,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         @Override
         public void onClick(View view) {
-            mOnClickListener.onMovieCardClick();
+            mOnClickListener.onMovieCardClick(mMovieData[0]);
         }
 
 //        void bind() {

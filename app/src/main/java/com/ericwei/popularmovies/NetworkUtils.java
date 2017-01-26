@@ -1,6 +1,7 @@
 package com.ericwei.popularmovies;
 
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +30,8 @@ import okhttp3.Response;
 
 public class NetworkUtils {
 
+    public static final String TAG = NetworkUtils.class.getSimpleName();
+
     private static final String TMDB_BASE_URL = "http://api.themoviedb.org/3/movie/popular?api_key=506f49d96a360fcfd9fd74de6d1dbe67";
     //  /movie/popular?api_key=
     //"http://image.tmdb.org/t/p/";
@@ -36,37 +39,51 @@ public class NetworkUtils {
     private static final String TOP_RATED_SEARCH = "/movie/top_rated";
 
 
-    public static URL buildURL() throws MalformedURLException {
+    public static URL buildURL() {
 //        Uri builtUri = Uri.parse(TMDB_BASE_URL).buildUpon()
 //                .appendQueryParameter(POPULAR_SEARCH,)
-        URL url = new URL(TMDB_BASE_URL);
+        URL url = null;
+        try {
+            url = new URL(TMDB_BASE_URL);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         return url;
     }
 
-    public static void getResponseFromHttpUrl(URL url) throws IOException {
+    public static Movie[] getResponseFromHttpUrl(URL url) throws IOException {
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(buildURL()).build();
 
+        Movie[] movieItems = null;
         try {
+            Log.d(TAG, "ABOUT TO get network data!!!");
             Response response = client.newCall(request).execute();
-            JSONArray array = new JSONArray(response.body().string());
+            if (!response.isSuccessful()) {
+                Log.d(TAG, "the JSON operation is not successful. code " + response.code());
+            }
+            JSONObject jsonObject = new JSONObject(response.body().string());
+            JSONArray jsonArray = jsonObject.getJSONArray("results");
 
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject object = array.getJSONObject(i);
+            movieItems = new Movie[jsonArray.length()];
 
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+
+                Log.d(TAG, "hey! I'm assembling the movie array! i= " + String.valueOf(i));
                 //String originalTitle, String releaseDate, String posterPath, String voteAverage, String overview
-                Movie movieItem = new Movie(object.getString("original_title"),
+                movieItems[i] = new Movie(object.getString("original_title"),
                         object.getString("release_date"),
                         object.getString("poster_path"),
                         object.getString("vote_average"),
                         object.getString("overview"));
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return movieItems;
     }
 
 

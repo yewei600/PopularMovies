@@ -1,10 +1,13 @@
 package com.ericwei.popularmovies;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by ericwei on 2017-01-24.
  */
 
-public class Movie {
+public class Movie implements Parcelable{
 
     private String originalTitle;
     private String releaseDate;
@@ -58,5 +61,19 @@ public class Movie {
 
     public void setOverview(String overview) {
         this.overview = overview;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(originalTitle);
+        parcel.writeString(releaseDate);
+        parcel.writeString(posterPath);
+        parcel.writeString(voteAverage);
+        parcel.writeString(overview);
     }
 }
