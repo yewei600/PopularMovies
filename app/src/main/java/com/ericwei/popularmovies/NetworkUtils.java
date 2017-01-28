@@ -28,34 +28,37 @@ public class NetworkUtils {
 
     public static final String TAG = NetworkUtils.class.getSimpleName();
 
-    private static final String TMDB_BASE_URL = "http://api.themoviedb.org/3/movie/popular?api_key=506f49d96a360fcfd9fd74de6d1dbe67";
-    //  /movie/popular?api_key=
-    //"http://image.tmdb.org/t/p/";
+    private static final String TMDB_BASE_AUTHORITY = "api.themoviedb.org/3/";
     private static final String POPULAR_SEARCH = "/movie/popular";
     private static final String TOP_RATED_SEARCH = "/movie/top_rated";
+    private static final String SEARCH_CHOICE = "movie/";
+
     private static OkHttpClient client = new OkHttpClient();
 
 
-    public static URL buildURL() {
-//        Uri builtUri = Uri.parse(TMDB_BASE_URL).buildUpon()
-//                .appendQueryParameter(POPULAR_SEARCH,)
+    public static URL buildURL(String sortType) {
+
         URL url = null;
         try {
-            url = new URL(TMDB_BASE_URL);
+            if (sortType.equals("top rated")) {
+                url = new URL("http://api.themoviedb.org/3/movie/top_rated?api_key=506f49d96a360fcfd9fd74de6d1dbe67");
+            } else if (sortType.equals("popular")) {
+                url = new URL("http://api.themoviedb.org/3/movie/popular?api_key=506f49d96a360fcfd9fd74de6d1dbe67");
+            }
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return url;
     }
 
-    public static Movie[] getResponseFromHttpUrl(URL url) throws IOException {
+    public static Movie[] getResponseFromHttpUrl(URL url, String sortType) throws IOException {
 
         Request request = new Request.Builder()
-                .url(buildURL()).build();
+                .url(buildURL(sortType)).build();
 
         Movie[] movieItems = null;
         try {
-            Log.d(TAG, "ABOUT TO get network data!!!");
             Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
                 Log.d(TAG, "the JSON operation is not successful. code " + response.code());
@@ -68,7 +71,6 @@ public class NetworkUtils {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
 
-                Log.d(TAG, "hey! I'm assembling the movie array! i= " + String.valueOf(i));
                 //String originalTitle, String releaseDate, String posterPath, String voteAverage, String overview
                 movieItems[i] = new Movie(object.getString("original_title"),
                         object.getString("release_date"),

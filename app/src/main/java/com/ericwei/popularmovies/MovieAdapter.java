@@ -77,7 +77,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         }
 
         void bind(int position) {
-            String thumbnailUrl = "http://image.tmdb.org/t/p/w185" + mMovieData[position].getPosterPath();
+            String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovieData[position].getPosterPath();
 
             Picasso.with(mContext).load(thumbnailUrl).into(mMoviePosterThumbnail);
         }

@@ -15,9 +15,12 @@ public class DetailMovieActivity extends AppCompatActivity {
     private String mReleaseDate;
     //movie poster
     private String mAverage;
-    private String mPlotSynopsis;
+    private String mOverview;
 
-    private TextView mTV;
+    private TextView mTitleDisplay;
+    private TextView mReleaseDateDisplay;
+    private TextView mAverageDisplay;
+    private TextView mOverviewDisplay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +37,15 @@ public class DetailMovieActivity extends AppCompatActivity {
 
         Log.d(TAG, "movie is not NULL, and the tile is " + mMovie.getPosterPath());
 
-        mTV = (TextView) findViewById(R.id.tv_single_movie_info);
+        mTitleDisplay = (TextView) findViewById(R.id.tv_movie_title);
+        mReleaseDateDisplay = (TextView) findViewById(R.id.tv_release_date);
+        mAverageDisplay = (TextView) findViewById(R.id.tv_average);
+        mOverviewDisplay = (TextView) findViewById(R.id.tv_overview);
 
-        mTV.setText(mMovie.getOriginalTitle() + " " + mMovie.getPosterPath() + " " + mMovie.getOverview());
+        mTitleDisplay.setText("Title: " + mMovie.getOriginalTitle());
+        mReleaseDateDisplay.setText("Release Date: " + mMovie.getReleaseDate());
+        mAverageDisplay.setText("Average Rating: " + mMovie.getVoteAverage());
+        mOverviewDisplay.setText("Overview: " + mMovie.getOverview());
+
     }
 }
