@@ -1,5 +1,7 @@
 package com.ericwei.popularmovies;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -28,22 +30,19 @@ public class NetworkUtils {
 
     public static final String TAG = NetworkUtils.class.getSimpleName();
 
-    private static final String TMDB_BASE_AUTHORITY = "api.themoviedb.org/3/";
-    private static final String POPULAR_SEARCH = "/movie/popular";
-    private static final String TOP_RATED_SEARCH = "/movie/top_rated";
-    private static final String SEARCH_CHOICE = "movie/";
-
     private static OkHttpClient client = new OkHttpClient();
 
 
-    public static URL buildURL(String sortType) {
+    public static URL buildURL(Context context, String sortType) {
 
         URL url = null;
         try {
             if (sortType.equals("top rated")) {
-                url = new URL("http://api.themoviedb.org/3/movie/top_rated?api_key=506f49d96a360fcfd9fd74de6d1dbe67");
+                url = new URL("http://api.themoviedb.org/3/movie/top_rated?api_key="
+                        + context.getString(R.string.tmdb_api_key));
             } else if (sortType.equals("popular")) {
-                url = new URL("http://api.themoviedb.org/3/movie/popular?api_key=506f49d96a360fcfd9fd74de6d1dbe67");
+                url = new URL("http://api.themoviedb.org/3/movie/popular?api_key="
+                        + context.getString(R.string.tmdb_api_key));
             }
 
         } catch (MalformedURLException e) {
@@ -52,10 +51,10 @@ public class NetworkUtils {
         return url;
     }
 
-    public static Movie[] getResponseFromHttpUrl(URL url, String sortType) throws IOException {
+    public static Movie[] getResponseFromHttpUrl(URL url) throws IOException {
 
         Request request = new Request.Builder()
-                .url(buildURL(sortType)).build();
+                .url(url).build();
 
         Movie[] movieItems = null;
         try {

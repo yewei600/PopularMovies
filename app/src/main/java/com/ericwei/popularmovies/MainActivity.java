@@ -119,11 +119,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (strings.length == 0) {
                 return null;
             }
-            URL movieQueryUrl = NetworkUtils.buildURL(strings[0]);
+            URL movieQueryUrl = NetworkUtils.buildURL(getApplicationContext(), strings[0]);
             Movie[] jsonMovieResponses = null;
 
             try {
-                jsonMovieResponses = NetworkUtils.getResponseFromHttpUrl(movieQueryUrl, strings[0]);
+                jsonMovieResponses = NetworkUtils.getResponseFromHttpUrl(movieQueryUrl);
             } catch (IOException e) {
                 e.printStackTrace();
             }
