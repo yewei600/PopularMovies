@@ -2,6 +2,7 @@ package com.ericwei.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -21,6 +22,8 @@ public class DetailMovieActivity extends AppCompatActivity {
     private TextView mOverviewDisplay;
     private ImageView mPosterImage;
 
+    private ActionBar mActionbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -31,6 +34,9 @@ public class DetailMovieActivity extends AppCompatActivity {
         if (intent.hasExtra(MainActivity.MOVIE_DATA)) {
             mMovie = intent.getParcelableExtra(MainActivity.MOVIE_DATA);
         }
+
+        mActionbar = getSupportActionBar();
+        mActionbar.setTitle("Movie Detail");
 
         mTitleDisplay = (TextView) findViewById(R.id.tv_movie_title);
         mReleaseDateDisplay = (TextView) findViewById(R.id.tv_release_date);

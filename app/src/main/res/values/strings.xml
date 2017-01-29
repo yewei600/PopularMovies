@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Popular Movies</string>
-    <string name="tmdb_api_key">506f49d96a360fcfd9fd74de6d1dbe67</string>
 
     <string name="pref_sort_option_label" translatable="false">Sort Option</string>
     <string name="pref_sort_option_key" translatable="false">sort</string>

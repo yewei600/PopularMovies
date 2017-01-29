@@ -74,6 +74,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void getMovieSortingPreference(SharedPreferences sharedPreferences) {
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_option_key),
                 getString(R.string.pref_sort_popular_value));
+        mRecyclerView.setAdapter(null);
+        mMovieAdapter = new MovieAdapter(this, this);
+        mRecyclerView.setAdapter(mMovieAdapter);
+
+        new FetchMovieInfoTask().execute(mSortType);
     }
 
     @Override
@@ -119,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (strings.length == 0) {
                 return null;
             }
-            URL movieQueryUrl = NetworkUtils.buildURL(getApplicationContext(), strings[0]);
+            URL movieQueryUrl = NetworkUtils.buildURL(strings[0]);
             Movie[] jsonMovieResponses = null;
 
             try {
@@ -136,7 +141,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (movies != null) {
                 mMovieAdapter.setMovieData(movies);
             }
-            dialog.dismiss();
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
             super.onPostExecute(movies);
         }
     }

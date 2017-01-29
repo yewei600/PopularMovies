@@ -33,16 +33,16 @@ public class NetworkUtils {
     private static OkHttpClient client = new OkHttpClient();
 
 
-    public static URL buildURL(Context context, String sortType) {
+    public static URL buildURL(String sortType) {
 
         URL url = null;
         try {
             if (sortType.equals("top rated")) {
                 url = new URL("http://api.themoviedb.org/3/movie/top_rated?api_key="
-                        + context.getString(R.string.tmdb_api_key));
+                        + BuildConfig.TMDB_API_KEY);
             } else if (sortType.equals("popular")) {
                 url = new URL("http://api.themoviedb.org/3/movie/popular?api_key="
-                        + context.getString(R.string.tmdb_api_key));
+                        + BuildConfig.TMDB_API_KEY);
             }
 
         } catch (MalformedURLException e) {
