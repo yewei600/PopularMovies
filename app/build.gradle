@@ -17,7 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         buildTypes.each {
-            it.buildConfigField("String","TMDB_API_KEY",tmdb_api_key)
+            it.buildConfigField("String", "TMDB_API_KEY", tmdb_api_key)
         }
     }
 }
@@ -31,6 +31,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'com.android.support:cardview-v7:25.1.0'
     compile 'com.android.support:preference-v7:25.1.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
 
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp3:okhttp:3.5.0'

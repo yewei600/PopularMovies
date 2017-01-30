@@ -1,6 +1,8 @@
 package com.ericwei.popularmovies;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -10,10 +12,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -112,10 +115,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         @Override
         protected void onPreExecute() {
-            dialog = new ProgressDialog(MainActivity.this);  //can't use getApplicationContext()
+            Context context = MainActivity.this;
+            dialog = new ProgressDialog(context);  //can't use getApplicationContext()
             dialog.setMessage("Loading Movie Info...");
             dialog.setCancelable(false);
-            dialog.show();
+            //http://stackoverflow.com/questions/7811993/error-binderproxy45d459c0-is-not-valid-is-your-activity-running
+            if (!((Activity) context).isFinishing()) {
+                dialog.show();
+            }
             super.onPreExecute();
         }
 
@@ -124,12 +131,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             if (strings.length == 0) {
                 return null;
             }
-            URL movieQueryUrl = NetworkUtils.buildURL(strings[0]);
+            URL movieQueryUrl = NetworkUtils.buildUrl(strings[0]);
             Movie[] jsonMovieResponses = null;
 
             try {
-                jsonMovieResponses = NetworkUtils.getResponseFromHttpUrl(movieQueryUrl);
-            } catch (IOException e) {
+                jsonMovieResponses = NetworkUtils.getMovieDataFromHttpUrl(movieQueryUrl);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return jsonMovieResponses;
