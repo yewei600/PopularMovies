@@ -9,16 +9,19 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,9 +38,13 @@ public class DetailMovieActivity extends AppCompatActivity {
     private TextView mAverageDisplay;
     private TextView mOverviewDisplay;
     private ImageView mPosterImage;
-
     private ActionBar mActionbar;
     private Button mTestButton;
+
+    private ListView mTrailersListView;
+    private TrailersListAdapter mTrailersListAdapter;
+    private ExpandableListView mReviewsExpListView;
+    private ReviewsExpandableListAdapter mReviewsExpListAdapter;
 
     private String[] youtubeTrailerIds;
 
@@ -62,10 +69,13 @@ public class DetailMovieActivity extends AppCompatActivity {
         mPosterImage = (ImageView) findViewById(R.id.iv_movie_poster);
 
         mTestButton = (Button) findViewById(R.id.testButton);
+        mTrailersListView = (ListView) findViewById(R.id.lv_trailers);
+        mReviewsExpListView = (ExpandableListView) findViewById(R.id.elv_reviews);
 
         mTitleDisplay.setText("Title: " + mMovie.getOriginalTitle());
         mReleaseDateDisplay.setText("Release Date: " + mMovie.getReleaseDate());
         mAverageDisplay.setText("Average Rating: " + mMovie.getVoteAverage());
+        mOverviewDisplay.setText("gonna add some blank lines\n\n\n\n\n\n\n" + mMovie.getOverview());
         Log.d(TAG, "the movie ID is " + mMovie.getId());
 
 
@@ -86,9 +96,18 @@ public class DetailMovieActivity extends AppCompatActivity {
         });
     }
 
+    private String[] generateListViewData(int size) {
+        String[] data = new String[size];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = "Trailer " + String.valueOf(i + 1);
+        }
+        return data;
+    }
+
 
     public class FetchTrailersAndReviewsTask extends AsyncTask<Void, Void, HashMap<String, String>> {
         private ProgressDialog dialog;
+        private HashMap<String, String> movieReviews = null;
 
         @Override
         protected void onPreExecute() {
@@ -114,14 +133,26 @@ public class DetailMovieActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(HashMap<String, String> movieReviewsHashMap) {
+
             if (movieReviewsHashMap != null) {
                 List authorList = new ArrayList(movieReviewsHashMap.keySet());
 
-                mAverageDisplay.setText("the review list is length = " + movieReviewsHashMap.size() + "\n");
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+                        android.R.layout.simple_list_item_1, android.R.id.text1,
+                        generateListViewData(youtubeTrailerIds.length));
+                mTrailersListView.setAdapter(adapter);
+                mTrailersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Intent intent1 = new Intent(Intent.ACTION_VIEW,
+                                Uri.parse("http://www.youtube.com/watch?v=" + youtubeTrailerIds[i]));
+                        startActivity(intent1);
+                    }
+                });
 
-                for (int i = 0; i < youtubeTrailerIds.length; i++) {
-                    mAverageDisplay.append(youtubeTrailerIds[i] + "\n\n");
-                }
+                mReviewsExpListAdapter = new ReviewsExpandableListAdapter(getApplicationContext(),
+                        movieReviewsHashMap, authorList);
+                mReviewsExpListView.setAdapter(mReviewsExpListAdapter);
             }
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
