@@ -1,7 +1,11 @@
 package com.ericwei.popularmovies;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ericwei.popularmovies.data.MovieContract;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -75,25 +80,49 @@ public class DetailMovieActivity extends AppCompatActivity {
         mTitleDisplay.setText("Title: " + mMovie.getOriginalTitle());
         mReleaseDateDisplay.setText("Release Date: " + mMovie.getReleaseDate());
         mAverageDisplay.setText("Average Rating: " + mMovie.getVoteAverage());
-        mOverviewDisplay.setText("gonna add some blank lines\n\n\n\n\n\n\n" + mMovie.getOverview());
+        mOverviewDisplay.setText(mMovie.getOverview());
         Log.d(TAG, "the movie ID is " + mMovie.getId());
 
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
 
-        String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovie.getPosterPath();
-        Picasso.with(this).load(thumbnailUrl).into(mPosterImage);
+        if (isConnected) {
+            String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovie.getPosterPath();
+            Picasso.with(this).load(thumbnailUrl).into(mPosterImage);
 
-        new FetchTrailersAndReviewsTask().execute();
+            new FetchTrailersAndReviewsTask().execute();
+        } else {
+            Toast.makeText(this, "NO INTERNET CONNECTION right now!!!", Toast.LENGTH_LONG).show();
+        }
 
         mTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (youtubeTrailerIds != null) {
-                    Intent intent1 = new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://www.youtube.com/watch?v=" + youtubeTrailerIds[0]));
-                    startActivity(intent1);
-                }
+                //saveToFavoriteDatabase();
             }
         });
+    }
+
+    //save a movie to the favorite db
+    private void saveToFavoriteDatabase() {
+        /*
+      The titles and ids of the user's favorite movies are stored in a ContentProvider backed by a
+      SQLite database. This ContentProvider is updated whenever the user favorites or unfavorites a movie.
+         */
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovie.getOriginalTitle());
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
+        // contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, mMovie.getPosterPath());
+        contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, mMovie.getVoteAverage());
+        contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mMovie.getOverview());
+        contentValues.put(MovieContract.MovieEntry.COLUMN_ID, mMovie.getId());
+
+        Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+        if (uri != null) {
+            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private String[] generateListViewData(int size) {

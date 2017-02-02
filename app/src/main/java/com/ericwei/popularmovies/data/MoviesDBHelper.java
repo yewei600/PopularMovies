@@ -22,7 +22,11 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         final String CREATE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + " INTEGER PRIMARY KEY, ";
+                MovieEntry.COLUMN_TITLE + " NOT NULL, " +
+                MovieEntry.COLUMN_RELEASE_DATE + " NOT NULL, " +
+                MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                MovieEntry.COLUMN_OVERVIEW + " INTEGER NOT NULL); ";
 
         sqLiteDatabase.execSQL(CREATE_TABLE);
     }

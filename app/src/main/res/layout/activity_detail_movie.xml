@@ -1,183 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_detail_movie"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.constraint.ConstraintLayout
+    <TextView
+        android:id="@+id/tv_movie_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/cardview_light_background">
+        android:layout_margin="10dp" />
 
-        <View
-            android:id="@+id/view"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_marginBottom="14dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginStart="4dp"
-            android:background="@android:color/holo_blue_dark"
-            app:layout_constraintBottom_toTopOf="@+id/iv_movie_poster"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintTop_creator="1" />
+    <TextView
+        android:id="@+id/tv_release_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp" />
 
-        <TextView
-            android:id="@+id/tv_movie_title"
-            android:layout_width="67dp"
-            android:layout_height="23dp"
-            android:layout_marginLeft="28dp"
-            android:layout_marginStart="28dp"
-            android:hint="Title"
-            android:text="TextView"
-            app:layout_constraintBottom_toBottomOf="@+id/view"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/view"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintTop_creator="1" />
+    <ImageView
+        android:id="@+id/iv_movie_poster"
+        android:layout_width="120dp"
+        android:layout_height="160dp"
+        android:layout_margin="10dp" />
 
-        <ImageView
-            android:id="@+id/iv_movie_poster"
-            android:layout_width="120dp"
-            android:layout_height="160dp"
-            android:layout_marginBottom="12dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/tv_overview"
-            app:layout_constraintLeft_toLeftOf="@+id/tv_overview"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1" />
+    <TextView
+        android:id="@+id/tv_average"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp" />
 
-        <TextView
-            android:id="@+id/tv_release_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="21dp"
-            android:text="TextView"
-            app:layout_constraintLeft_toLeftOf="@+id/tv_average"
-            app:layout_constraintRight_toRightOf="@+id/tv_average"
-            app:layout_constraintTop_toBottomOf="@+id/view"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1" />
+    <TextView
+        android:id="@+id/tv_overview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp" />
 
-        <TextView
-            android:id="@+id/tv_overview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="11dp"
-            android:text="TextView"
-            app:layout_constraintBottom_toTopOf="@+id/tv_trailers_label"
-            app:layout_constraintLeft_toLeftOf="@+id/tv_trailers_label"
-            app:layout_constraintRight_toRightOf="@+id/tv_trailers_label"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1" />
+    <Button
+        android:id="@+id/testButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tv_average"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="20dp"
-            android:text="TextView"
-            app:layout_constraintLeft_toLeftOf="@+id/testButton"
-            app:layout_constraintTop_toBottomOf="@+id/tv_release_date"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintTop_creator="1" />
+    <ListView
+        android:id="@+id/lv_trailers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></ListView>
 
-        <Button
-            android:id="@+id/testButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="66dp"
-            android:layout_marginLeft="65dp"
-            android:layout_marginRight="66dp"
-            android:layout_marginStart="65dp"
-            android:layout_marginTop="16dp"
-            android:text="Button"
-            app:layout_constraintLeft_toRightOf="@+id/iv_movie_poster"
-            app:layout_constraintRight_toRightOf="@+id/elv_reviews"
-            app:layout_constraintTop_toBottomOf="@+id/tv_average"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1" />
+    <ExpandableListView
+        android:id="@+id/elv_reviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></ExpandableListView>
 
-        <TextView
-            android:id="@+id/tv_trailers_label"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="187dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginLeft="4dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginStart="4dp"
-            android:text="TextView"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="@+id/lv_trailers"
-            app:layout_constraintRight_toRightOf="@+id/tv_reviews_label"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:text="Trailers" />
+</LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_reviews_label"
-            android:layout_width="64dp"
-            android:layout_height="20dp"
-            android:layout_marginBottom="86dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"
-            android:text="TextView"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:text="Reviews" />
 
-        <ListView
-            android:id="@+id/lv_trailers"
-            android:layout_width="0dp"
-            android:layout_height="67dp"
-            android:layout_marginBottom="28dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="26dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_reviews_label"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_trailers_label"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1" />
-
-        <ExpandableListView
-            android:id="@+id/elv_reviews"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_reviews_label"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1"
-            tools:layout_constraintTop_creator="1" />
-
-    </android.support.constraint.ConstraintLayout>
-
-</ScrollView>

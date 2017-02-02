@@ -2,6 +2,7 @@ package com.ericwei.popularmovies;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +80,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovieData[position].getPosterPath();
 
             Picasso.with(mContext).load(thumbnailUrl).into(mMoviePosterThumbnail);
+            // Log.d(TAG, "loading thumbnails!!!");
         }
     }
 }

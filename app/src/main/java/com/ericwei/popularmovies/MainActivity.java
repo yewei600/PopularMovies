@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -12,13 +13,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.ericwei.popularmovies.data.MovieContract;
 
 import org.json.JSONException;
 
-import java.io.IOException;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieCardClickListener,
@@ -77,11 +81,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void getMovieSortingPreference(SharedPreferences sharedPreferences) {
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_option_key),
                 getString(R.string.pref_sort_popular_value));
-        mRecyclerView.setAdapter(null);
-        mMovieAdapter = new MovieAdapter(this, this);
-        mRecyclerView.setAdapter(mMovieAdapter);
 
-        new FetchMovieInfoTask().execute(mSortType);
+        if (mSortType.equals(getString(R.string.pref_sort_favorites_value))) {
+            Toast.makeText(this, "Favorites option selected!!!", Toast.LENGTH_LONG).show();
+            //query for the movies in the favorite db
+            new FetchFavoriteMoviesTask().execute();
+
+        } else {
+            mRecyclerView.setAdapter(null);
+            mMovieAdapter = new MovieAdapter(this, this);
+            mRecyclerView.setAdapter(mMovieAdapter);
+
+            new FetchMovieInfoTask().execute(mSortType);
+        }
     }
 
     @Override
@@ -144,14 +156,62 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         @Override
         protected void onPostExecute(Movie[] movies) {
-
             if (movies != null) {
                 mMovieAdapter.setMovieData(movies);
+                Log.d(TAG, "the movie array set to the adapter is of length " + movies.length);
             }
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
             super.onPostExecute(movies);
+        }
+    }
+
+    public class FetchFavoriteMoviesTask extends AsyncTask<Object, Object, Cursor> {
+        private ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            Context context = MainActivity.this;
+            dialog = new ProgressDialog(context);  //can't use getApplicationContext()
+            dialog.setMessage("Loading Movie Info...");
+            dialog.setCancelable(false);
+            //http://stackoverflow.com/questions/7811993/error-binderproxy45d459c0-is-not-valid-is-your-activity-running
+            if (!((Activity) context).isFinishing()) {
+                dialog.show();
+            }
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Cursor doInBackground(Object... voids) {
+            return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    MovieContract.MovieEntry.COLUMN_ID);
+        }
+
+        @Override
+        protected void onPostExecute(Cursor moviesCursor) {
+            int numMovies = moviesCursor.getCount();
+            Movie[] movies = new Movie[numMovies];
+
+            for (int i = 0; i < numMovies; i++) {
+                movies[i].setOriginalTitle(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)));
+                movies[i].setReleaseDate(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)));
+                //what to do with this???
+                movies[i].setPosterPath(null);
+                movies[i].setVoteAverage(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE)));
+                movies[i].setOverview(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW)));
+                movies[i].setId(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID)));
+            }
+
+            mMovieAdapter.setMovieData(movies);
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            super.onPostExecute(moviesCursor);
         }
     }
 
