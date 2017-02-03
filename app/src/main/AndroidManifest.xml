@@ -24,6 +24,11 @@
         <activity
             android:name=".SettingsActivity"
             android:parentActivityName=".MainActivity" />
+
+        <provider
+            android:name="com.ericwei.popularmovies.data.MoviesContentProvider"
+            android:authorities="com.ericwei.popularmovies"
+            android:exported="false" />
     </application>
 
 </manifest>

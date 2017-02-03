@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import static com.ericwei.popularmovies.data.MovieContract.MovieEntry.TABLE_NAME;
 
@@ -19,6 +20,8 @@ import static com.ericwei.popularmovies.data.MovieContract.MovieEntry.TABLE_NAME
  */
 
 public class MoviesContentProvider extends ContentProvider {
+
+    private static final String TAG = MoviesContentProvider.class.getSimpleName();
 
     public static final int MOVIES = 100;
     public static final int MOVIE_WITH_ID = 101;
@@ -51,7 +54,7 @@ public class MoviesContentProvider extends ContentProvider {
 
         switch (match) {
 
-            case MOVIE_WITH_ID:
+            case MOVIES:
                 retCursor = db.query(TABLE_NAME,
                         strings,
                         s,
@@ -86,6 +89,7 @@ public class MoviesContentProvider extends ContentProvider {
                 id = db.insert(TABLE_NAME, null, contentValues);
                 if (id > 0) {
                     returnUri = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, id);
+                    Log.d(TAG, "the insert is Successful.  returnURI=" + returnUri.toString());
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }

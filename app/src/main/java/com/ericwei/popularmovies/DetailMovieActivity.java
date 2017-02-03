@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -13,11 +14,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +34,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.ericwei.popularmovies.data.MovieContract.MovieEntry;
 
 public class DetailMovieActivity extends AppCompatActivity {
 
@@ -52,6 +57,7 @@ public class DetailMovieActivity extends AppCompatActivity {
     private ReviewsExpandableListAdapter mReviewsExpListAdapter;
 
     private String[] youtubeTrailerIds;
+    private boolean isFavorite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +82,8 @@ public class DetailMovieActivity extends AppCompatActivity {
         mTestButton = (Button) findViewById(R.id.testButton);
         mTrailersListView = (ListView) findViewById(R.id.lv_trailers);
         mReviewsExpListView = (ExpandableListView) findViewById(R.id.elv_reviews);
+        //ListUtils.setDynamicHeight(mTrailersListView);
+        //ListUtils.setDynamicHeight(mReviewsExpListView);
 
         mTitleDisplay.setText("Title: " + mMovie.getOriginalTitle());
         mReleaseDateDisplay.setText("Release Date: " + mMovie.getReleaseDate());
@@ -97,31 +105,71 @@ public class DetailMovieActivity extends AppCompatActivity {
             Toast.makeText(this, "NO INTERNET CONNECTION right now!!!", Toast.LENGTH_LONG).show();
         }
 
+        if (isMovieInFavoriteDB()) {
+            mTestButton.setText("Unfavorite Movie");
+        } else {
+            mTestButton.setText("Favorite Movie");
+        }
+
         mTestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //saveToFavoriteDatabase();
+                favoriteDatabaseOperation(isFavorite);
             }
         });
     }
 
+    private boolean isMovieInFavoriteDB() {
+        Cursor cursor = getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                new String[]{MovieEntry.COLUMN_TITLE},
+                MovieEntry.COLUMN_ID + "='" + mMovie.getId() + "'",
+                null, null);
+//        Cursor cursor = getContentResolver().query(
+//                MovieEntry.CONTENT_URI,
+//                null, null, null,
+//                MovieEntry.COLUMN_ID);
+
+        //cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_TITLE)).equals(mMovie.getOriginalTitle())
+        if (cursor.getCount() > 0) {
+            Log.d(TAG, "This movie is in the database!!!");
+            mTestButton.setText("unfavorite!");
+            isFavorite = true;
+        } else {
+            Log.d(TAG, "This movie NOT IN database!");
+            isFavorite = false;
+        }
+        return isFavorite;
+    }
+
     //save a movie to the favorite db
-    private void saveToFavoriteDatabase() {
+    private void favoriteDatabaseOperation(boolean isInDb) {
         /*
       The titles and ids of the user's favorite movies are stored in a ContentProvider backed by a
       SQLite database. This ContentProvider is updated whenever the user favorites or unfavorites a movie.
          */
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovie.getOriginalTitle());
-        contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
-        // contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, mMovie.getPosterPath());
-        contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, mMovie.getVoteAverage());
-        contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mMovie.getOverview());
-        contentValues.put(MovieContract.MovieEntry.COLUMN_ID, mMovie.getId());
+        if (isInDb) {
+            Uri uri = MovieEntry.CONTENT_URI.buildUpon().appendPath(mMovie.getId()).build();
+            int deleted = getContentResolver().delete(uri, null, null);
+            if (deleted == 1) {
+                Toast.makeText(this, "THE MOVIE DELETED!!!!!", Toast.LENGTH_LONG).show();
+                mTestButton.setText("Favorite Movie");
+            }
+        } else {
+            //insert into database
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovie.getOriginalTitle());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, mMovie.getPosterPath());     //********************** want to do?
+            contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, mMovie.getVoteAverage());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mMovie.getOverview());
+            contentValues.put(MovieContract.MovieEntry.COLUMN_ID, Integer.parseInt(mMovie.getId()));
 
-        Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
-        if (uri != null) {
-            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+            Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+            if (uri != null) {
+                Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show();
+                mTestButton.setText("Unfavorite Movie");
+            }
         }
     }
 
@@ -187,6 +235,27 @@ public class DetailMovieActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
             super.onPostExecute(movieReviewsHashMap);
+        }
+    }
+
+    public static class ListUtils {
+        public static void setDynamicHeight(ListView mListView) {
+            ListAdapter mListAdapter = mListView.getAdapter();
+            if (mListAdapter == null) {
+                // when adapter is null
+                return;
+            }
+            int height = 0;
+            int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+            for (int i = 0; i < mListAdapter.getCount(); i++) {
+                View listItem = mListAdapter.getView(i, null, mListView);
+                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                height += listItem.getMeasuredHeight();
+            }
+            ViewGroup.LayoutParams params = mListView.getLayoutParams();
+            params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
+            mListView.setLayoutParams(params);
+            mListView.requestLayout();
         }
     }
 }
