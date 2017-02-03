@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -53,19 +55,28 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mMovieAdapter = new MovieAdapter(this, this);
         mRecyclerView.setAdapter(mMovieAdapter);
 
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
+
         setupSharedPreferences();
-        //new FetchMovieInfoTask().execute(mSortType);
 
         if (mSortType.equals(getString(R.string.pref_sort_favorites_value))) {
             mActionBar.setTitle("Favorite Movies");
             new FetchFavoriteMoviesTask().execute();
         } else {
-            if (mSortType.equals(getString(R.string.pref_sort_popular_value))) {
-                mActionBar.setTitle("Popular Movies");
+            if (isConnected) {
+                if (mSortType.equals(getString(R.string.pref_sort_popular_value))) {
+                    mActionBar.setTitle("Popular Movies");
+                } else {
+                    mActionBar.setTitle("Top Rated Movies");
+                }
+                new FetchMovieInfoTask().execute(mSortType);
             } else {
-                mActionBar.setTitle("Top Rated Movies");
+                Toast.makeText(this, "No internet connectivity! can only show favorite movies.\nChange in settings",
+                        Toast.LENGTH_LONG).show();
             }
-            new FetchMovieInfoTask().execute(mSortType);
         }
     }
 
@@ -208,7 +219,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 Toast.makeText(getApplicationContext(), "You have no favorite movies!",
                         Toast.LENGTH_LONG).show();
             }
-
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }

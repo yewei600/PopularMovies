@@ -53,7 +53,6 @@ public class MoviesContentProvider extends ContentProvider {
         Cursor retCursor;
 
         switch (match) {
-
             case MOVIES:
                 retCursor = db.query(TABLE_NAME,
                         strings,

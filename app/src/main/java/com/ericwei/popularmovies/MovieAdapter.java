@@ -1,11 +1,13 @@
 package com.ericwei.popularmovies;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -62,11 +64,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public ImageView mMoviePosterThumbnail;
+        private ImageView mMoviePosterThumbnail;
+        private TextView mMoviePosterText;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
             mMoviePosterThumbnail = (ImageView) itemView.findViewById(R.id.iv_movie_poster_thumbnail);
+            mMoviePosterText = (TextView) itemView.findViewById(R.id.tv_poster_text);
             itemView.setOnClickListener(this);
         }
 
@@ -75,11 +79,18 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             mOnClickListener.onMovieCardClick(mMovieData[getAdapterPosition()]);
         }
 
-        void bind(int position) {
+        void bind(final int position) {
             String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovieData[position].getPosterPath();
 
+            Picasso.Builder builder = new Picasso.Builder(mContext);
+            builder.listener(new Picasso.Listener() {
+                @Override
+                public void onImageLoadFailed(Picasso picasso, Uri uri, Exception exception) {
+                    mMoviePosterText.setText(mMovieData[position].getOriginalTitle());
+                    mMoviePosterText.setVisibility(View.VISIBLE);
+                }
+            });
             Picasso.with(mContext).load(thumbnailUrl).into(mMoviePosterThumbnail);
-            // Log.d(TAG, "loading thumbnails!!!");
         }
     }
 }

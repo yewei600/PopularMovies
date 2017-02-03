@@ -14,13 +14,11 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,14 +80,14 @@ public class DetailMovieActivity extends AppCompatActivity {
         mTestButton = (Button) findViewById(R.id.testButton);
         mTrailersListView = (ListView) findViewById(R.id.lv_trailers);
         mReviewsExpListView = (ExpandableListView) findViewById(R.id.elv_reviews);
-        //ListUtils.setDynamicHeight(mTrailersListView);
-        //ListUtils.setDynamicHeight(mReviewsExpListView);
 
         mTitleDisplay.setText("Title: " + mMovie.getOriginalTitle());
         mReleaseDateDisplay.setText("Release Date: " + mMovie.getReleaseDate());
         mAverageDisplay.setText("Average Rating: " + mMovie.getVoteAverage());
         mOverviewDisplay.setText(mMovie.getOverview());
         Log.d(TAG, "the movie ID is " + mMovie.getId());
+        String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovie.getPosterPath();
+        Picasso.with(this).load(thumbnailUrl).error(R.mipmap.ic_launcher).into(mPosterImage);
 
         ConnectivityManager cm =
                 (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -97,12 +95,10 @@ public class DetailMovieActivity extends AppCompatActivity {
         boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
 
         if (isConnected) {
-            String thumbnailUrl = "http://image.tmdb.org/t/p/w342" + mMovie.getPosterPath();
-            Picasso.with(this).load(thumbnailUrl).into(mPosterImage);
-
             new FetchTrailersAndReviewsTask().execute();
         } else {
-            Toast.makeText(this, "NO INTERNET CONNECTION right now!!!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No internet connection! Can't show trailers and reviews",
+                    Toast.LENGTH_LONG).show();
         }
 
         if (isMovieInFavoriteDB()) {
@@ -125,12 +121,7 @@ public class DetailMovieActivity extends AppCompatActivity {
                 new String[]{MovieEntry.COLUMN_TITLE},
                 MovieEntry.COLUMN_ID + "='" + mMovie.getId() + "'",
                 null, null);
-//        Cursor cursor = getContentResolver().query(
-//                MovieEntry.CONTENT_URI,
-//                null, null, null,
-//                MovieEntry.COLUMN_ID);
 
-        //cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_TITLE)).equals(mMovie.getOriginalTitle())
         if (cursor.getCount() > 0) {
             Log.d(TAG, "This movie is in the database!!!");
             mTestButton.setText("unfavorite!");
@@ -152,7 +143,7 @@ public class DetailMovieActivity extends AppCompatActivity {
             Uri uri = MovieEntry.CONTENT_URI.buildUpon().appendPath(mMovie.getId()).build();
             int deleted = getContentResolver().delete(uri, null, null);
             if (deleted == 1) {
-                Toast.makeText(this, "THE MOVIE DELETED!!!!!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Deleted from favorites", Toast.LENGTH_LONG).show();
                 mTestButton.setText("Favorite Movie");
             }
         } else {
@@ -160,14 +151,14 @@ public class DetailMovieActivity extends AppCompatActivity {
             ContentValues contentValues = new ContentValues();
             contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovie.getOriginalTitle());
             contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, mMovie.getReleaseDate());
-            contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, mMovie.getPosterPath());     //********************** want to do?
+            contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, mMovie.getPosterPath());
             contentValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, mMovie.getVoteAverage());
             contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, mMovie.getOverview());
             contentValues.put(MovieContract.MovieEntry.COLUMN_ID, Integer.parseInt(mMovie.getId()));
 
             Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
             if (uri != null) {
-                Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Added to favorites", Toast.LENGTH_LONG).show();
                 mTestButton.setText("Unfavorite Movie");
             }
         }
@@ -184,7 +175,6 @@ public class DetailMovieActivity extends AppCompatActivity {
 
     public class FetchTrailersAndReviewsTask extends AsyncTask<Void, Void, HashMap<String, String>> {
         private ProgressDialog dialog;
-        private HashMap<String, String> movieReviews = null;
 
         @Override
         protected void onPreExecute() {
@@ -238,24 +228,4 @@ public class DetailMovieActivity extends AppCompatActivity {
         }
     }
 
-    public static class ListUtils {
-        public static void setDynamicHeight(ListView mListView) {
-            ListAdapter mListAdapter = mListView.getAdapter();
-            if (mListAdapter == null) {
-                // when adapter is null
-                return;
-            }
-            int height = 0;
-            int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-            for (int i = 0; i < mListAdapter.getCount(); i++) {
-                View listItem = mListAdapter.getView(i, null, mListView);
-                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-                height += listItem.getMeasuredHeight();
-            }
-            ViewGroup.LayoutParams params = mListView.getLayoutParams();
-            params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
-            mListView.setLayoutParams(params);
-            mListView.requestLayout();
-        }
-    }
 }
