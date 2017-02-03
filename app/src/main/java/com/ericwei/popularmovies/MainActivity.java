@@ -54,12 +54,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRecyclerView.setAdapter(mMovieAdapter);
 
         setupSharedPreferences();
-        new FetchMovieInfoTask().execute(mSortType);
+        //new FetchMovieInfoTask().execute(mSortType);
 
-        if (mSortType.equals(getString(R.string.pref_sort_popular_value))) {
-            mActionBar.setTitle("Popular Movies");
+        if (mSortType.equals(getString(R.string.pref_sort_favorites_value))) {
+            mActionBar.setTitle("Favorite Movies");
+            new FetchFavoriteMoviesTask().execute();
         } else {
-            mActionBar.setTitle("Top Rated Movies");
+            if (mSortType.equals(getString(R.string.pref_sort_popular_value))) {
+                mActionBar.setTitle("Popular Movies");
+            } else {
+                mActionBar.setTitle("Top Rated Movies");
+            }
+            new FetchMovieInfoTask().execute(mSortType);
         }
     }
 
@@ -81,19 +87,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void getMovieSortingPreference(SharedPreferences sharedPreferences) {
         mSortType = sharedPreferences.getString(getString(R.string.pref_sort_option_key),
                 getString(R.string.pref_sort_popular_value));
-
-        if (mSortType.equals(getString(R.string.pref_sort_favorites_value))) {
-            Toast.makeText(this, "Favorites option selected!!!", Toast.LENGTH_LONG).show();
-            //query for the movies in the favorite db
-            new FetchFavoriteMoviesTask().execute();
-
-        } else {
-            mRecyclerView.setAdapter(null);
-            mMovieAdapter = new MovieAdapter(this, this);
-            mRecyclerView.setAdapter(mMovieAdapter);
-
-            new FetchMovieInfoTask().execute(mSortType);
-        }
     }
 
     @Override
@@ -195,24 +188,31 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected void onPostExecute(Cursor moviesCursor) {
             int numMovies = moviesCursor.getCount();
-            Movie[] movies = new Movie[numMovies];
 
-            for (int i = 0; i < numMovies; i++) {
-                movies[i].setOriginalTitle(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)));
-                movies[i].setReleaseDate(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)));
-                //what to do with this???
-                movies[i].setPosterPath(null);
-                movies[i].setVoteAverage(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE)));
-                movies[i].setOverview(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW)));
-                movies[i].setId(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID)));
+            if (numMovies > 0) {
+                Movie[] movies = new Movie[numMovies];
+                moviesCursor.moveToFirst();
+
+                for (int i = 0; i < numMovies; i++) {
+                    movies[i] = new Movie(moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_TITLE)),
+                            moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)),
+                            moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER)),
+                            moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE)),
+                            moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW)),
+                            moviesCursor.getString(moviesCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID)));
+
+                    moviesCursor.moveToNext();
+                }
+                mMovieAdapter.setMovieData(movies);
+            } else {
+                Toast.makeText(getApplicationContext(), "You have no favorite movies!",
+                        Toast.LENGTH_LONG).show();
             }
 
-            mMovieAdapter.setMovieData(movies);
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
             super.onPostExecute(moviesCursor);
         }
     }
-
 }
